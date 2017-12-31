@@ -1,4 +1,4 @@
-# ssd1306_test.py Demo pogram for rendering arbitrary fonts to an SSD1306 OLED display.
+# util.py Demo pogram for rendering arbitrary fonts to an SSD1306 OLED display.
 
 # The MIT License (MIT)
 #
@@ -31,6 +31,7 @@
 # Now provides demo of simple graphics
 
 import machine
+import utime
 from .ssd1306 import SSD1306_I2C
 from .writer import Writer
 
@@ -42,12 +43,24 @@ from . import freesans20
 WIDTH = const(128)
 HEIGHT = const(64)
 
+pscl = machine.Pin(4, machine.Pin.OUT)
+psda = machine.Pin(5, machine.Pin.OUT)
+i2c = machine.I2C(scl=pscl, sda=psda)
+ssd = SSD1306_I2C(WIDTH, HEIGHT, i2c, 0x3c)
+
+def printLines(line1, line2):
+    ssd.fill(0)
+    ssd.show()
+    utime.sleep(0.5)
+    wri = Writer(ssd, freesans20, verbose=False)
+    Writer.set_clip(True, True)
+    Writer.set_textpos(0, 0)
+    wri.printstring(line1)
+    wri.printstring('\n')
+    wri.printstring(line2)
+    ssd.show()
+
 def test():
-    pscl = machine.Pin(4, machine.Pin.OUT)
-    psda = machine.Pin(5, machine.Pin.OUT)
-    i2c = machine.I2C(scl=pscl, sda=psda)
-    #    i2c = machine.I2C(2)
-    ssd = SSD1306_I2C(WIDTH, HEIGHT, i2c, 0x3c)
 
     rhs = WIDTH -1
     ssd.line(rhs - 20, 0, rhs, 20, 1)
@@ -63,8 +76,3 @@ def test():
     wri2.printstring('Hallo')
     ssd.show()
 
-print('Test assumes a 128*64 (w*h) display. Edit WIDTH and HEIGHT for others.')
-print('Device pinouts are commented in the code.')
-print('Issue:')
-print('ssd1306_test.test() for an I2C connected device.')
-print('ssd1306_test.test(True) for an SPI connected device.')
