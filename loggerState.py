@@ -5,7 +5,7 @@ from SSD1306 import util
 
 def getStatus():
   resp = urequests.get('http://logger/cgi-bin/state.py')
-  m = re.search('__(.*)__.*(\d+)', resp.text)
+  m = re.search('__(.*)__.*eventCount: (\d+)', resp.text)
   return (m.group(1), m.group(2))
 
 def putOnOled():
